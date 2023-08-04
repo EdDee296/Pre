@@ -3,39 +3,46 @@ from random import randint
 from menu import *
 import os
 
-running = False
-timer_elapsed = 10   # Elapsed time in seconds
-score = 0
+
+def splash_screen():
+    black_bg = Entity(model='quad', texture='brick', scale=10,
+                      parent=camera.ui, color=color.black)
+    icon = Entity(model='quad', texture='assets/tornado.png',
+                  scale=0.5, parent=camera.ui, alpha=0)
+    icon.fade_in(duration=3)
+    menu = Menu()
+    menu.disable()
+    s = Sequence(Func(icon.fade_out), Func(black_bg.fade_out),
+                 Func(setattr, menu, 'enabled', True), duration=4)
+    s.start()
+
+
+def initialize():
+    global running, timer_elapsed, score, box, score_board, timer, create_box
+    running = False
+    timer_elapsed = 10   # Elapsed time in seconds
+    score = 0
+    box = []
+
+    def create_box():
+        return Button(parent=scene, model='sphere', color=color.brown, position=(3, randint(2, 4), randint(2, 5)), highlight_color=color.brown, pressed_color=color.brown)
+    for _ in range(5):
+        box.append(create_box())
+    score_board = Button(parent=scene, model='quad', position=(
+        3, 4, 8), text=f'Score: {score}', rotation=Vec3(0, 90, 0), color=color.clear)
+    timer = Button(parent=scene, model='quad', position=(
+        3, 3, 8), text=f'Time: {round(timer_elapsed)}', rotation=Vec3(0, 90, 0), color=color.clear)
+
 
 # Game
 app = Ursina()
 
 # Splash screen
-black_bg = Entity(model='quad', texture='brick', scale=10,
-                  parent=camera.ui, color=color.black)
-icon = Entity(model='quad', texture='assets/tornado.png',
-              scale=0.5, parent=camera.ui, alpha=0)
-icon.fade_in(duration=3)
-menu = Menu()
-menu.disable()
-s = Sequence(Func(icon.fade_out), Func(black_bg.fade_out),
-             Func(setattr, menu, 'enabled', True), duration=4)
-s.start()
+# menu = Menu()
+splash_screen()
 
 # Initialize the game
-box = []
-
-
-def create_box():
-    return Button(parent=scene, model='sphere', color=color.brown, position=(3, randint(2, 4), randint(2, 5)), highlight_color=color.brown, pressed_color=color.brown)
-
-
-for _ in range(5):
-    box.append(create_box())
-score_board = Button(parent=scene, model='quad', position=(
-    3, 4, 8), text=f'Score: {score}', rotation=Vec3(0, 90, 0), color=color.clear)
-timer = Button(parent=scene, model='quad', position=(
-    3, 3, 8), text=f'Time: {round(timer_elapsed)}', rotation=Vec3(0, 90, 0), color=color.clear)
+initialize()
 
 
 def save_score():
@@ -50,21 +57,8 @@ def save_score():
         json.dump(new_score, file)
 
 
-def input(key):
-    global score, running, box, timer_elapsed
-    for ball in box:
-        if ball.hovered and key == 'left mouse down':
-            box.remove(ball)
-            destroy(ball)
-            running = True
-            if timer_elapsed > 0:
-                score += 1
-        if key == 'escape':
-            quit()
-
-
 def update():
-    global score, timer_elapsed, running, box, score_board, start, timer
+    global score, timer_elapsed, running, box, score_board, start, timer, end, last_score
     if running:
         destroy(score_board)
         destroy(timer)
@@ -74,12 +68,9 @@ def update():
             3, 3, 8), text=f'Time: {round(timer_elapsed)}', rotation=Vec3(0, 90, 0), color=color.clear)
         if len(box) < 5:
             box.append(create_box())
-            if not box:
-                for i in box:
-                    if box.count(i.position) > 1:
-                        i.position = (3, randint(2, 5), randint(2, 5))
         timer_elapsed -= time.dt
-        if timer_elapsed <= 0:
+        print(timer_elapsed)
+        if timer_elapsed < 0:
             running = False
             for ball in box:
                 destroy(ball)
@@ -90,8 +81,28 @@ def update():
             except FileNotFoundError:
                 last_score = 0
             save_score()
-            timer = Button(parent=scene, model='quad', position=(
-                3, 2, 3), text=f'Time out!!\nYour score: {score}\nYour latest score: {last_score}\nPress "esc" to quit.', rotation=Vec3(0, 90, 0), color=color.clear)
+            end = Button(parent=scene, model='quad', position=(
+                3, 2, 3), text=f'Time out!!\nYour score: {score}\nYour latest score: {last_score}\nPress "Enter" to restart or "Esc" to quit.', rotation=Vec3(0, 90, 0), color=color.clear)
+            # invoke(Func(destroy,end), delay = 5)
+
+
+def input(key):
+    global score, running, box, timer_elapsed, timer, end
+    for ball in box:
+        if ball.hovered and key == 'left mouse down':
+            box.remove(ball)
+            destroy(ball)
+            if timer_elapsed > 0:
+                running = True
+                score += 1
+        if key == 'escape':
+            quit()
+    if not running:
+        if score != 0 and key == 'enter':
+            destroy(score_board)
+            destroy(timer)
+            destroy(end)
+            initialize()
 
 
 app.run()
