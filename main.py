@@ -23,22 +23,19 @@ def initialize():
     timer_elapsed = 10   # Elapsed time in seconds
     score = 0
     box = []
-
     def create_box():
         return Button(parent=scene, model='sphere', color=color.brown, position=(3, randint(2, 4), randint(2, 5)), highlight_color=color.brown, pressed_color=color.brown)
     for _ in range(5):
         box.append(create_box())
-    score_board = Button(parent=scene, model='quad', position=(
-        3, 4, 8), text=f'Score: {score}', rotation=Vec3(0, 90, 0), color=color.clear)
-    timer = Button(parent=scene, model='quad', position=(
-        3, 3, 8), text=f'Time: {round(timer_elapsed)}', rotation=Vec3(0, 90, 0), color=color.clear)
+    score_board = Button(parent=scene, model='quad', position=(3, 4, 8), text=f'Score: {score}', rotation=Vec3(0, 90, 0), color=color.clear)
+    timer = Button(parent=scene, model='quad', position=(3, 3, 8), text=f'Time: {round(timer_elapsed)}', rotation=Vec3(0, 90, 0), color=color.clear)
 
 
 # Game
 app = Ursina()
 
 # Splash screen
-# menu = Menu()
+#menu = Menu()
 splash_screen()
 
 # Initialize the game
@@ -62,10 +59,8 @@ def update():
     if running:
         destroy(score_board)
         destroy(timer)
-        score_board = Button(parent=scene, model='quad', position=(
-            3, 4, 8), text=f'Score: {score}', rotation=Vec3(0, 90, 0), color=color.clear)
-        timer = Button(parent=scene, model='quad', position=(
-            3, 3, 8), text=f'Time: {round(timer_elapsed)}', rotation=Vec3(0, 90, 0), color=color.clear)
+        score_board = Button(parent=scene, model='quad', position=(3, 4, 8), text=f'Score: {score}', rotation=Vec3(0, 90, 0), color=color.clear)
+        timer = Button(parent=scene, model='quad', position=(3, 3, 8), text=f'Time: {round(timer_elapsed)}', rotation=Vec3(0, 90, 0), color=color.clear)
         if len(box) < 5:
             box.append(create_box())
         timer_elapsed -= time.dt
@@ -81,9 +76,8 @@ def update():
             except FileNotFoundError:
                 last_score = 0
             save_score()
-            end = Button(parent=scene, model='quad', position=(
-                3, 2, 3), text=f'Time out!!\nYour score: {score}\nYour latest score: {last_score}\nPress "Enter" to restart or "Esc" to quit.', rotation=Vec3(0, 90, 0), color=color.clear)
-            # invoke(Func(destroy,end), delay = 5)
+            end = Button(parent=scene, model='quad', position=(3, 2, 3), text=f'Time out!!\nYour score: {score}\nYour latest score: {last_score}\nPress "Enter" to restart or "Esc" to quit.', rotation=Vec3(0, 90, 0), color=color.clear)
+            #invoke(Func(destroy,end), delay = 5)
 
 
 def input(key):
@@ -98,11 +92,10 @@ def input(key):
         if key == 'escape':
             quit()
     if not running:
-        if score != 0 and key == 'enter':
+        if score != 0 and  key == 'enter':
             destroy(score_board)
             destroy(timer)
             destroy(end)
             initialize()
-
 
 app.run()
