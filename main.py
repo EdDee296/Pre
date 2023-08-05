@@ -66,6 +66,7 @@ def update():
         timer_elapsed -= time.dt
         print(timer_elapsed)
         if timer_elapsed < 0:
+            a = Audio('audio/game over.wav', loop=False, pitch = 2, volume = 1)
             running = False
             for ball in box:
                 destroy(ball)
