@@ -76,7 +76,6 @@ class Player(Entity):
 
     def input(self,key):
         if key == 'left mouse down':
-            a = Audio('audio//gun sound.wav', loop = False, volume = 1, pitch = 2)
             if self.gun.enabled:
                 self.gun.rotation_z += 20
             else:
